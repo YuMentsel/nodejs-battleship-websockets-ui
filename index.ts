@@ -23,9 +23,10 @@ wss.on('connection', (wsClient: WebSocketClient) => {
   wsClient.on('close', (code: number) => {
     console.log(`Client disconnected with code ${code} `);
     console.log(`Client numbers: ${wss.clients.size}`);
+    finishGame(wsClient.name);
     database.deletePlayersRoom(wsClient.index);
+    database.deleteConnection(wsClient.index);
     updateRoom();
-    finishGame(wsClient.name)
   });
 });
 

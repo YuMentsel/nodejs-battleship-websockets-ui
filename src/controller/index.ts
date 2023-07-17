@@ -14,7 +14,7 @@ export const commandsSwitcher = (wsClient: WebSocketClient, message: string) => 
         createRoom(wsClient.index);
         break;
       case CommandType.addUserToRoom:
-        addUserToRoom(data, wsClient.index, wsClient.name);
+        addUserToRoom(data, wsClient.index);
         break;
       case CommandType.addShips:
         addShips(data, wsClient.index);

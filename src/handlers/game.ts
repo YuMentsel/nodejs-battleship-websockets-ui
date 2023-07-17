@@ -56,7 +56,7 @@ export const attack = (data: string, index: number) => {
   const opponentIndex = getOpponentIndex(game, indexPlayer);
   const ship = game.shipData[opponentIndex];
 
-  if (ship.field[x][y].checked) return;
+  if (ship?.field[x][y].checked) return;
 
   const { status, cellsAround } = ship.checkAttack(x, y);
 
@@ -163,22 +163,25 @@ export const randomAttack = (data: string, index: number) => {
 };
 
 export const finishGame = (name: string) => {
-  const { getGamesByName, getPlayerByName, getOpponentIndex, connections } = database;
+  const { getGamesByName, getPlayerByName, getOpponentIndex, connections, deleteGame } = database;
   const games = getGamesByName(name);
-  games.forEach((game) => {
-    const index = getPlayerByName(name)?.index || 0;
-    const opponentIndex = getOpponentIndex(game, index);
-    game.players.forEach((playerIndex) => {
-      const newMessage = {
-        type: CommandType.finish,
-        data: JSON.stringify({
-          winPlayer: opponentIndex,
-        }),
-        id: 0,
-      };
-      connections[playerIndex].send(JSON.stringify(newMessage));
-    });
+  if (games) {
+    games.forEach((game) => {
+      const index = getPlayerByName(name)?.index || 0;
+      const opponentIndex = getOpponentIndex(game, index);
+      game.players.forEach((playerIndex) => {
+        const newMessage = {
+          type: CommandType.finish,
+          data: JSON.stringify({
+            winPlayer: opponentIndex,
+          }),
+          id: 0,
+        };
+        connections[playerIndex].send(JSON.stringify(newMessage));
+      });
 
-    addWinner(opponentIndex);
-  });
+      addWinner(opponentIndex);
+      deleteGame(game.gameId);
+    });
+  }
 };

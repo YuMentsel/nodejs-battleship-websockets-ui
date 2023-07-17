@@ -1,5 +1,5 @@
-import { WebSocket } from 'ws';
 import { ShipData } from './shipData';
+import { WebSocketClient } from '../types';
 
 export interface Player {
   index: number;
@@ -9,7 +9,7 @@ export interface Player {
 }
 
 export interface Connection {
-  [key: string]: WebSocket;
+  [key: string]: WebSocketClient;
 }
 
 export interface Room {

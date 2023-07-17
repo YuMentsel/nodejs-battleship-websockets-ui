@@ -54,11 +54,9 @@ class Database {
     if (rooms) rooms.forEach((room) => this.deleteRoom(room.index));
   };
 
-  isPlayerInThisRoom = (roomId: number, wsIndex: number, wsName: string) => {
-    if (!this.rooms.length) return;
-    return this.rooms[this.getRoomIndex(roomId)].roomUsers.some(
-      (user) => user.index === wsIndex && user.name === wsName,
-    );
+  isPlayerInThisRoom = (roomId: number, wsIndex: number) => {
+    if (!this.rooms.length) return false;
+    return this.rooms[this.getRoomIndex(roomId)].roomUsers.some((user) => user.index === wsIndex);
   };
 
   isPlayerInRooms = (index: number) => {
@@ -86,6 +84,10 @@ class Database {
   getOpponentIndex = (game: Game, indexPlayer: number) => game.players.filter((index) => index !== indexPlayer)[0];
 
   setConnection = (wsClient: WebSocketClient, index: number) => (this.connections[index] = wsClient);
+
+  deleteConnection = (index: number) => delete this.connections[index];
+
+  deleteGame = (index: number) => (this.games = this.games.filter((game) => game.gameId !== index));
 
   // winners
 

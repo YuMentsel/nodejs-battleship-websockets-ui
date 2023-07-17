@@ -3,6 +3,7 @@ import { WebSocketServer } from 'ws';
 import { WebSocketClient } from './src/types';
 import { commandsSwitcher } from './src/controller';
 import { database } from './src/database';
+import { updateRoom } from './src/handlers';
 
 const HTTP_PORT = 8181;
 export const WS_PORT = 3000;
@@ -23,11 +24,13 @@ wss.on('connection', (wsClient: WebSocketClient) => {
     console.log(`Client disconnected with code ${code} `);
     console.log(`Client numbers: ${wss.clients.size}`);
     database.deletePlayer(wsClient.index);
+    database.deletePlayersRoom(wsClient.index);
+    updateRoom();
   });
 });
 
 process.on('SIGINT', async () => {
-  console.log('Static server close');
+  console.log('Server close');
   httpServer.close();
   process.exit(0);
 });

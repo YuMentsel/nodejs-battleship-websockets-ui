@@ -29,10 +29,7 @@ class Database {
 
   getPlayerIndex = (index: number) => this.players.findIndex((player) => player.index === index);
 
-  deletePlayer = (wsIndex: number) => {
-    const deletedPlayer = this.getPlayer(wsIndex);
-    if (deletedPlayer) this.players.splice(deletedPlayer.index, 1);
-  };
+  deletePlayer = (index: number) => (this.players = this.players.filter((player) => player.index !== index));
 
   // room
   addRoom = ({ name, index }: Player) => {

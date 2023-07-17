@@ -45,7 +45,7 @@ export const turn = (gameId: number, status?: string) => {
   });
 };
 
-export const atack = (data: string, index: number) => {
+export const attack = (data: string, index: number) => {
   const { getGame, connections, getOpponentIndex } = database;
   const { gameId, x, y, indexPlayer } = JSON.parse(data);
   const game = getGame(gameId);
@@ -129,4 +129,61 @@ const updateWinners = () => {
   });
 };
 
+export const randomAttack = (data: string, index: number) => {
+  const { gameId, indexPlayer } = JSON.parse(data);
+  const { getGame, getOpponentIndex } = database;
+  const game = getGame(gameId);
+  const opponentIndex = getOpponentIndex(game, indexPlayer);
+  const field = game.shipData[opponentIndex].field;
 
+  const availableCells = [];
+
+  for (let x = 0; x < field.length; x++) {
+    for (let y = 0; y < field.length; y++) {
+      if (!field[x][y].checked) {
+        availableCells.push({ x, y });
+      }
+    }
+  }
+
+  if (availableCells.length === 0) return;
+
+  const randomCellIndex = Math.floor(Math.random() * availableCells.length);
+  console.log('Random attack:', availableCells[randomCellIndex]);
+  const { x, y } = availableCells[randomCellIndex];
+
+  const newMessage = {
+    gameId,
+    x,
+    y,
+    indexPlayer: index,
+  };
+
+  attack(JSON.stringify(newMessage), index);
+};
+
+// export const randomAttack = (data: string, index: number) => {
+//   const { gameId, indexPlayer } = JSON.parse(data);
+//   const { getGame } = database;
+//   const game = getGame(gameId);
+//   const oppositePlayerId = game?.players.filter((id) => id !== indexPlayer)[0];
+//   const field = game.shipData[oppositePlayerId].field;
+
+//   let x;
+//   let y;
+
+//   do {
+//     x = Math.floor(Math.random() * field.length);
+//     y = Math.floor(Math.random() * field.length);
+//   } while (field[x][y].checked);
+
+//   attack(
+//     JSON.stringify({
+//       gameId,
+//       x,
+//       y,
+//       indexPlayer: index,
+//     }),
+//     index,
+//   );
+// };

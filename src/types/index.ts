@@ -16,7 +16,7 @@ export enum CommandType {
   startGame = 'start_game',
   turn = 'turn',
   attack = 'attack',
-  randomAttack = 'random_attack',
+  randomAttack = 'randomAttack',
   finish = 'finish',
   createRoom = 'create_room',
   updateRoom = 'update_room',

@@ -1,4 +1,4 @@
-import { registration, createRoom, addUserToRoom, addShips, atack } from '../handlers';
+import { registration, createRoom, addUserToRoom, addShips, attack, randomAttack } from '../handlers';
 import { WebSocketClient, Command, CommandType } from '../types';
 
 export const commandsSwitcher = (wsClient: WebSocketClient, message: string) => {
@@ -19,11 +19,12 @@ export const commandsSwitcher = (wsClient: WebSocketClient, message: string) => 
       case CommandType.addShips:
         addShips(data, wsClient.index);
         break;
-      case 'attack':
-        atack(data, wsClient.index);
+      case CommandType.attack:
+        attack(data, wsClient.index);
         break;
-      // case 'randomAttack':
-      //   randomAttack(data);
+      case CommandType.randomAttack:
+        randomAttack(data, wsClient.index);
+        break;
       default:
         console.log(`Incorrect command type: ${type}`);
         break;

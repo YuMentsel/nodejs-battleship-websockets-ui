@@ -1,8 +1,10 @@
 import { database, Player } from '../database';
 import { WebSocketClient, Command, CommandType } from '../types';
+import { updateRoom } from './room';
+import { updateWinners } from './game';
 
 class BattleshipPlayer implements Player {
-  private static index = 0;
+  static index = 0;
   index: number;
   name: string;
   password: string;
@@ -18,13 +20,20 @@ class BattleshipPlayer implements Player {
 }
 
 export const registration = (message: Command, wsClient: WebSocketClient) => {
-  const { getPlayerByName, addPlayer, setConnection } = database;
+  const { getPlayerByName, addPlayer, setConnection, players } = database;
   const { name, password } = JSON.parse(message.data);
   const existingPlayer = getPlayerByName(name);
   if (existingPlayer) {
     if (existingPlayer.password === password) {
+      const index = Math.max(...players.map((player) => player.index)) + 1;
+      BattleshipPlayer.index += 1;
+      existingPlayer.index = index;
+      setConnection(wsClient, index);
+      wsClient.index = index;
       const newMessage = updateMessage(name, existingPlayer.index, false, '');
       wsClient.send(JSON.stringify(newMessage));
+      updateRoom();
+      updateWinners();
     } else {
       const newMessage = updateMessage(name, existingPlayer.index, true, 'Wrong password');
       wsClient.send(JSON.stringify(newMessage));
@@ -38,6 +47,8 @@ export const registration = (message: Command, wsClient: WebSocketClient) => {
     wsClient.index = index;
     wsClient.name = name;
     wsClient.send(JSON.stringify(newMessage));
+    updateRoom();
+    updateWinners();
   }
 };
 

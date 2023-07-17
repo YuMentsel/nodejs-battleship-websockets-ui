@@ -111,13 +111,13 @@ const attackResponse = (status: string, x: number, y: number, playerIndex: numbe
 export const addWinner = (index: number) => {
   const { players, winners, getPlayerIndex, isWinnersInDB, getWinnerIndex } = database;
   const playerIndex = getPlayerIndex(index);
-  const name = players[playerIndex].name;
+  const name = players[playerIndex]?.name;
 
-  isWinnersInDB(name) ? winners[getWinnerIndex(name)].wins++ : winners.push({ name, wins: 1 });
+  if (name) isWinnersInDB(name) ? winners[getWinnerIndex(name)].wins++ : winners.push({ name, wins: 1 });
   updateWinners();
 };
 
-const updateWinners = () => {
+export const updateWinners = () => {
   const { connections, winners } = database;
   Object.keys(connections).forEach((key) => {
     const newMessage = {
@@ -163,21 +163,22 @@ export const randomAttack = (data: string, index: number) => {
 };
 
 export const finishGame = (name: string) => {
-  const { getGameByName, getNameIndex, connections } = database;
-  const games = getGameByName(name);
+  const { getGamesByName, getPlayerByName, getOpponentIndex, connections } = database;
+  const games = getGamesByName(name);
   games.forEach((game) => {
-    const index = getNameIndex(game, name);
+    const index = getPlayerByName(name)?.index || 0;
+    const opponentIndex = getOpponentIndex(game, index);
     game.players.forEach((playerIndex) => {
       const newMessage = {
         type: CommandType.finish,
         data: JSON.stringify({
-          winPlayer: index,
+          winPlayer: opponentIndex,
         }),
         id: 0,
       };
       connections[playerIndex].send(JSON.stringify(newMessage));
     });
 
-    addWinner(index);
+    addWinner(opponentIndex);
   });
 };

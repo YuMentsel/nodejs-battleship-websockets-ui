@@ -54,9 +54,11 @@ class Database {
     if (rooms) rooms.forEach((room) => this.deleteRoom(room.index));
   };
 
-  isPlayerInThisRoom = (roomId: number, wsIndex: number) => {
+  isPlayerInThisRoom = (roomId: number, wsIndex: number, wsName: string) => {
     if (!this.rooms.length) return;
-    return this.rooms[this.getRoomIndex(roomId)].roomUsers.some((user) => user.index === wsIndex);
+    return this.rooms[this.getRoomIndex(roomId)].roomUsers.some(
+      (user) => user.index === wsIndex && user.name === wsName,
+    );
   };
 
   isPlayerInRooms = (index: number) => {
@@ -78,11 +80,8 @@ class Database {
 
   getGame = (gameId: number) => this.games.find((game) => game.gameId === gameId)!;
 
-  getGameByName = (name: string) =>
+  getGamesByName = (name: string) =>
     this.games.filter((game) => game.playersNames.some((playerName) => playerName === name));
-
-  getNameIndex = (game: Game, name: string) =>
-    game.playersNames.findIndex((playerName) => playerName !== name);
 
   getOpponentIndex = (game: Game, indexPlayer: number) => game.players.filter((index) => index !== indexPlayer)[0];
 

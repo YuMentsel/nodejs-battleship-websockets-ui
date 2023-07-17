@@ -22,21 +22,20 @@ export const updateRoom = () => {
   Object.keys(connections).forEach((key) => connections[key].send(JSON.stringify(newMessage)));
 };
 
-export const addUserToRoom = (data: string, wsIndex: number) => {
+export const addUserToRoom = (data: string, wsIndex: number, wsName: string) => {
   const { getPlayer, getRoom, addToRoom, deleteRoom, deletePlayersRoom, isPlayerInThisRoom } = database;
   const { indexRoom } = JSON.parse(data);
   const { name } = getPlayer(wsIndex)!;
   const room = getRoom(indexRoom)!;
   const { roomId } = room;
 
-  if (!isPlayerInThisRoom(roomId, wsIndex)) {
+  if (!isPlayerInThisRoom(roomId, wsIndex, wsName)) {
     addToRoom(roomId, name, wsIndex);
     deleteRoom(roomId);
     deletePlayersRoom(wsIndex);
     updateRoom();
     createGame(room);
   }
-  updateRoom();
 };
 
 export const createGame = (room: Room) => {

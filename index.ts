@@ -11,7 +11,7 @@ console.log(`Start static http server on the ${HTTP_PORT} port!`);
 httpServer.listen(HTTP_PORT);
 
 const wss = new WebSocketServer({ port: WS_PORT }, () => {
-  console.log(`Start WS server on the ${WS_PORT} port`);
+  console.log(`Start WS server on the ${WS_PORT} port!`);
 });
 
 wss.on('connection', (wsClient: WebSocketClient) => {

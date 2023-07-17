@@ -1,5 +1,5 @@
 import { database, Player } from '../database';
-import { WebSocketClient, Command } from '../types';
+import { WebSocketClient, Command, CommandType } from '../types';
 
 class BattleshipPlayer implements Player {
   private static index = 0;
@@ -35,7 +35,7 @@ export const registration = (message: Command, wsClient: WebSocketClient) => {
 
 const updateMessage = (name: string, index: number, error: boolean, errorText: string) => {
   return {
-    type: 'reg',
+    type: CommandType.registration,
     data: JSON.stringify({
       name,
       index,

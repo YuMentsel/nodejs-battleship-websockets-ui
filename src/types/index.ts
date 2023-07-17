@@ -24,3 +24,15 @@ export enum CommandType {
   updateWinners = 'update_winners',
   addShips = 'add_ships',
 }
+
+export enum AttackStatus {
+  miss = 'miss',
+  killed = 'killed',
+  shot = 'shot',
+}
+
+export enum CellStatus {
+  safe = 'safe',
+  shot = 'shot',
+  empty = 'empty',
+}

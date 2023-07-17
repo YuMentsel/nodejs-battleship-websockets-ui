@@ -1,48 +1,39 @@
-import { Command } from '../types';
+import { Command, CommandType } from '../types';
 import { database, Game, Room } from '../database';
 
 export const createRoom = (wsIndex: number) => {
-  const { getPlayer, isPlayerInRooms, addRoom } = database;
+  const { getPlayer, addRoom } = database;
 
   const player = getPlayer(wsIndex)!;
 
-  if (isPlayerInRooms(player.index)) {
-    console.log(`Player already exists`);
-  } else {
-    addRoom(player);
-    updateRoom();
-  }
-  console.log('Rooms:', database.rooms);
+  addRoom(player);
+  updateRoom();
 };
 
 export const updateRoom = () => {
   const { connections, rooms } = database;
 
   const newMessage: Command = {
-    type: 'update_room',
+    type: CommandType.updateRoom,
     data: JSON.stringify(rooms),
     id: 0,
   };
 
-  console.log('New message:', newMessage);
 
-  Object.keys(connections).forEach((key) => {
-    const client = connections[key];
-    client ? client.send(JSON.stringify(newMessage)) : console.log(`Players not found`);
-  });
+  Object.keys(connections).forEach((key) => connections[key].send(JSON.stringify(newMessage)));
 };
 
 export const addUserToRoom = (data: string, wsIndex: number) => {
-  const { getPlayer, getRoom, addToRoom, isPlayersNumberAllowed, isPlayerInThisRoom } = database;
+  const { getPlayer, getRoom, addToRoom, deleteRoom, deletePlayersRoom, isPlayerInThisRoom } = database;
   const { indexRoom } = JSON.parse(data);
   const { name } = getPlayer(wsIndex)!;
-  const room = getRoom(indexRoom);
-  if (!room) return;
+  const room = getRoom(indexRoom)!;
   const { roomId } = room;
 
-  if (!isPlayerInThisRoom(roomId, wsIndex) && isPlayersNumberAllowed(roomId)) {
+  if (!isPlayerInThisRoom(roomId, wsIndex)) {
     addToRoom(roomId, name, wsIndex);
-    console.log('Players in room:', database.rooms[roomId]!.roomUsers);
+    deleteRoom(roomId);
+    deletePlayersRoom(wsIndex);
     updateRoom();
     createGame(room);
   }
@@ -55,20 +46,21 @@ export const createGame = (room: Room) => {
   const newGame: Game = {
     gameId,
     players: [],
-    boards: {},
+    shipData: {},
+    activePlayer: 0,
   };
   room?.roomUsers.forEach(({ index }) => {
     newGame.players.push(index);
 
     const newMessage: Command = {
-      type: 'create_game',
+      type: CommandType.createGame,
       data: JSON.stringify({
         idGame: gameId,
         idPlayer: index,
       }),
       id: 0,
     };
-    connections[index]!.send(JSON.stringify(newMessage));
+    connections[index].send(JSON.stringify(newMessage));
   });
 
   addGame(newGame);

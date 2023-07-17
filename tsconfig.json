@@ -8,8 +8,6 @@
     "lib": ["ESNext"],
     "module": "CommonJS",
     "moduleResolution": "Node",
-    "noUncheckedIndexedAccess": true,
-    "strictNullChecks": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "outDir": "dist",

@@ -1,11 +1,12 @@
 import { WebSocketClient } from '../types';
-import { Connection, Game, Player, Room } from './interfaces';
+import { Connection, Game, Player, Room, Winner } from './interfaces';
 
 class Database {
   connections: Connection;
   players: Player[];
   rooms: Room[];
   games: Game[];
+  winners: Winner[];
   roomId: number;
 
   constructor() {
@@ -13,6 +14,7 @@ class Database {
     this.players = [];
     this.rooms = [];
     this.games = [];
+    this.winners = [];
     this.roomId = 0;
   }
 
@@ -25,6 +27,8 @@ class Database {
   getPlayer = (wsIndex: number) =>
     this.players.find((player) => player.index === wsIndex) || console.log(`Player not found`);
 
+  getPlayerIndex = (index: number) => this.players.findIndex((player) => player.index === index);
+
   deletePlayer = (wsIndex: number) => {
     const deletedPlayer = this.getPlayer(wsIndex);
     if (deletedPlayer) this.players.splice(deletedPlayer.index, 1);
@@ -36,12 +40,24 @@ class Database {
     this.roomId++;
   };
 
+  getRoom = (index: number) => this.rooms.find((room) => room.roomId === index);
+
+  getRoomIndex = (index: number) => this.rooms.findIndex((room) => room.roomId === index);
+
   deleteRoom = (index: number) => (this.rooms = this.rooms.filter((room) => room.roomId !== index));
 
-  isPlayerInThisRoom = (roomId: number, wsIndex: number) => {
-    console.log(this.rooms.length);
+  deletePlayersRoom = (index: number) => {
     if (!this.rooms.length) return;
-    return this.rooms[roomId]!.roomUsers.some((user) => user.index === wsIndex);
+    const rooms = this.rooms
+      .map((room) => room.roomUsers)
+      .flat()
+      .filter((user) => user.index === index);
+    if (rooms) rooms.forEach((room) => this.deleteRoom(room.index));
+  };
+
+  isPlayerInThisRoom = (roomId: number, wsIndex: number) => {
+    if (!this.rooms.length) return;
+    return this.rooms[this.getRoomIndex(roomId)].roomUsers.some((user) => user.index === wsIndex);
   };
 
   isPlayerInRooms = (index: number) => {
@@ -52,18 +68,26 @@ class Database {
       .find((user) => user.index === index);
   };
 
-  getRoom = (index: number) => this.rooms.find((room) => room.roomId === index);
+  isPlayersNumberAllowed = (roomId: number, count: number) => this.rooms[roomId].roomUsers.length < count;
 
-  isPlayersNumberAllowed = (roomId: number) => this.rooms[roomId]!.roomUsers.length < 2;
-
-  addToRoom = (roomIndex: number, name: string, wsIndex: number) =>
-    this.rooms[roomIndex]!.roomUsers.push({ name, index: wsIndex });
+  addToRoom = (roomId: number, name: string, wsIndex: number) =>
+    this.rooms[this.getRoomIndex(roomId)].roomUsers.push({ name, index: wsIndex });
 
   // game
 
   addGame = (game: Game) => this.games.push(game);
 
+  getGame = (gameId: number) => this.games.find((game) => game.gameId === gameId)!;
+
+  getOpponentIndex = (game: Game, indexPlayer: number) => game.players.filter((index) => index !== indexPlayer)[0];
+
   setConnection = (wsClient: WebSocketClient, index: number) => (this.connections[index] = wsClient);
+
+  // winners
+
+  isWinnersInDB = (name: string) => this.winners.some((winner) => winner.name === name);
+
+  getWinnerIndex = (name: string) => this.winners.findIndex((winner) => winner.name === name);
 }
 
 export const database = new Database();

@@ -1,4 +1,5 @@
 import { WebSocket } from 'ws';
+import { ShipData } from './shipData';
 
 export interface Player {
   index: number;
@@ -24,12 +25,20 @@ interface RoomUsers {
 export interface Game {
   gameId: number;
   players: number[];
-  boards: {
-    [key: string]: Board;
+  activePlayer: 1 | 0;
+  shipData: {
+    [key: string]: ShipData;
   };
 }
 
-export interface Board {
+export interface ShipCells {
+  x: number;
+  y: number;
+  status: 1 | 3 | 4;
+}
+[];
+
+export interface Ship {
   position: {
     x: number;
     y: number;
@@ -37,4 +46,9 @@ export interface Board {
   direction: boolean;
   length: number;
   type: 'small' | 'medium' | 'large' | 'huge';
+}
+
+export interface Winner {
+  name: string;
+  wins: number;
 }

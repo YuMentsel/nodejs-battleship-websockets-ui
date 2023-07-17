@@ -3,7 +3,7 @@ import { WebSocketServer } from 'ws';
 import { WebSocketClient } from './src/types';
 import { commandsSwitcher } from './src/controller';
 import { database } from './src/database';
-import { updateRoom } from './src/handlers';
+import { updateRoom, finishGame } from './src/handlers';
 
 const HTTP_PORT = 8181;
 export const WS_PORT = 3000;
@@ -12,7 +12,7 @@ console.log(`Start static http server on the ${HTTP_PORT} port!`);
 httpServer.listen(HTTP_PORT);
 
 const wss = new WebSocketServer({ port: WS_PORT }, () => {
-  console.log(`Start WS server on the ${WS_PORT} port!`);
+  console.log(`Start WS server on the ${WS_PORT} port! Go to http://localhost:${HTTP_PORT}`);
 });
 
 wss.on('connection', (wsClient: WebSocketClient) => {
@@ -23,9 +23,9 @@ wss.on('connection', (wsClient: WebSocketClient) => {
   wsClient.on('close', (code: number) => {
     console.log(`Client disconnected with code ${code} `);
     console.log(`Client numbers: ${wss.clients.size}`);
-    database.deletePlayer(wsClient.index);
     database.deletePlayersRoom(wsClient.index);
     updateRoom();
+    finishGame(wsClient.name)
   });
 });
 

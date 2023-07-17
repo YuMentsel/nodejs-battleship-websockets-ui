@@ -25,6 +25,7 @@ interface RoomUsers {
 export interface Game {
   gameId: number;
   players: number[];
+  playersNames: string[];
   activePlayer: 1 | 0;
   shipData: {
     [key: string]: ShipData;

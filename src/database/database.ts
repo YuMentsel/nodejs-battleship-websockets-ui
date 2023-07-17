@@ -24,6 +24,8 @@ class Database {
 
   addPlayer = (player: Player) => this.players.push(player);
 
+  getPlayerByName = (playerName: string) => this.players.find((player) => player.name === playerName);
+
   getPlayer = (wsIndex: number) =>
     this.players.find((player) => player.index === wsIndex) || console.log(`Player not found`);
 
@@ -75,6 +77,12 @@ class Database {
   addGame = (game: Game) => this.games.push(game);
 
   getGame = (gameId: number) => this.games.find((game) => game.gameId === gameId)!;
+
+  getGameByName = (name: string) =>
+    this.games.filter((game) => game.playersNames.some((playerName) => playerName === name));
+
+  getNameIndex = (game: Game, name: string) =>
+    game.playersNames.findIndex((playerName) => playerName !== name);
 
   getOpponentIndex = (game: Game, indexPlayer: number) => game.players.filter((index) => index !== indexPlayer)[0];
 

@@ -19,7 +19,6 @@ export const updateRoom = () => {
     id: 0,
   };
 
-
   Object.keys(connections).forEach((key) => connections[key].send(JSON.stringify(newMessage)));
 };
 
@@ -37,6 +36,7 @@ export const addUserToRoom = (data: string, wsIndex: number) => {
     updateRoom();
     createGame(room);
   }
+  updateRoom();
 };
 
 export const createGame = (room: Room) => {
@@ -46,11 +46,14 @@ export const createGame = (room: Room) => {
   const newGame: Game = {
     gameId,
     players: [],
+    playersNames: [],
     shipData: {},
     activePlayer: 0,
   };
-  room?.roomUsers.forEach(({ index }) => {
+
+  room?.roomUsers.forEach(({ index, name }) => {
     newGame.players.push(index);
+    newGame.playersNames.push(name);
 
     const newMessage: Command = {
       type: CommandType.createGame,

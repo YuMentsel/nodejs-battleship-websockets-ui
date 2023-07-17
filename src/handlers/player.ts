@@ -18,17 +18,25 @@ class BattleshipPlayer implements Player {
 }
 
 export const registration = (message: Command, wsClient: WebSocketClient) => {
+  const { getPlayerByName, addPlayer, setConnection } = database;
   const { name, password } = JSON.parse(message.data);
-  if (database.isPlayerExist(name)) {
-    const newMessage = updateMessage(name, -1, true, 'Player already exists');
-    wsClient.send(JSON.stringify(newMessage));
+  const existingPlayer = getPlayerByName(name);
+  if (existingPlayer) {
+    if (existingPlayer.password === password) {
+      const newMessage = updateMessage(name, existingPlayer.index, false, '');
+      wsClient.send(JSON.stringify(newMessage));
+    } else {
+      const newMessage = updateMessage(name, existingPlayer.index, true, 'Wrong password');
+      wsClient.send(JSON.stringify(newMessage));
+    }
   } else {
     const player = new BattleshipPlayer(name, password);
     const { index } = player;
-    database.addPlayer(player);
-    database.setConnection(wsClient, index);
+    addPlayer(player);
+    setConnection(wsClient, index);
     const newMessage = updateMessage(name, index, false, '');
     wsClient.index = index;
+    wsClient.name = name;
     wsClient.send(JSON.stringify(newMessage));
   }
 };

@@ -2,6 +2,7 @@ import { WebSocket } from 'ws';
 
 export interface WebSocketClient extends WebSocket {
   index: number;
+  name: string;
 }
 
 export interface Command {
